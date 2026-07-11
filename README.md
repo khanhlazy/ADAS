@@ -176,8 +176,5 @@ python tests/test_engine.py
 ## 👥 9. Đội ngũ thực hiện & Bản quyền (Contributors)
 
 *   **Sinh viên thực hiện:** Nhóm 8 - Khoa Công nghệ Thông tin - Trường ĐH Giao thông vận tải TP.HCM.
-*   **Giảng viên hướng dẫn:** [Tên Giảng Viên]
-*   **Bản quyền:** Dự án được phát hành theo giấy phép MIT License.
-
 ---
 *Cảm ơn bạn đã quan tâm đến dự án TrafficVision ADAS! Mọi đóng góp hoặc báo cáo lỗi xin vui lòng tạo Issue trên kho lưu trữ Github.*
