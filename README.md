@@ -18,11 +18,6 @@
 **TrafficVision ADAS** là một hệ thống hỗ trợ lái xe nâng cao (Advanced Driver Assistance System) chạy thời gian thực được thiết kế và tối ưu hóa đặc thù cho giao thông hỗn hợp tại Việt Nam. Bằng cách áp dụng **Học sâu (Deep Learning)** kết hợp với **hình học camera**, hệ thống giúp nhận diện các mối nguy va chạm phía trước và đưa ra các cảnh báo bằng giọng nói tiếng Việt kịp thời nhằm nâng cao an toàn giao thông đường bộ.
 
 Hệ thống được phát triển trên kiến trúc phân tách **Micro-Monolith** đa luồng, tối ưu hóa cực hạn giúp chạy mượt mà ở tốc độ **~50 FPS** trên GPU phổ thông (như card đồ họa rời NVIDIA GTX 1650 laptop).
-
-<p align="center">
-  <img src="docs/assets/dashboard_preview.png" alt="Dashboard Preview" width="85%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);"/>
-</p>
-
 ---
 
 ## ✨ 2. Tính năng nổi bật (Core Features)
