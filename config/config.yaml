@@ -1,0 +1,51 @@
+# ======================================================================
+# TRAFFICVISION ADAS - CẤU HÌNH HỆ THỐNG TRỢ LÁI THÔNG MINH
+# ======================================================================
+
+# Cấu hình Web Server Flask
+server:
+  host: "127.0.0.1"
+  port: 5000
+  debug: false
+
+# Cấu hình Tiền xử lý Video
+video:
+  width: 640
+  height: 360
+
+# Cấu hình Mô hình AI (YOLO Object Detection)
+model:
+  path: "models/best.pt"
+  road_segmentation_path: "models/road_segmentation.pt"
+  conf_threshold: 0.25
+  iou_threshold: 0.45
+  imgsz: 320                  # Kích thước ảnh đầu vào YOLO Object Detection (320, 480, hoặc 640)
+
+# Cấu hình Cảm biến & Camera Calibration
+camera:
+  height: 1.35            # Chiều cao lắp đặt camera so với mặt đất (mét)
+  horizon_ratio: 0.55     # Vị trí đường chân trời vật lý để ước lượng khoảng cách (55% từ trên xuống)
+
+# Cấu hình Nhận diện Làn đường (Lane Detection)
+lane_detector:
+  buffer_size: 15         # Số khung hình làm mịn trung bình trượt (Moving Average)
+  ym_per_pix: 0.04167     # Hệ số quy đổi mét/pixel theo chiều dọc (30m / 720px)
+  xm_per_pix: 0.00528     # Hệ số quy đổi mét/pixel theo chiều ngang (3.7m / 700px)
+  min_peak_value: 1000    # Ngưỡng pixel tối thiểu để coi là có vạch làn trong histogram
+  horizon_ratio: 0.55     # Tỷ lệ giới hạn trên vẽ làn đường HUD (55% từ trên xuống)
+
+# Cấu hình Cảnh báo Va chạm phía trước (FCW)
+fcw:
+  safe_distance_warning: 18.0   # Khoảng cách cảnh báo chú ý mặc định (mét)
+  safe_distance_danger: 8.0     # Khoảng cách cảnh báo nguy hiểm mặc định (mét)
+  ttc_warning: 2.3              # Ngưỡng thời gian va chạm chú ý (TTC - giây)
+  ttc_danger: 1.3               # Ngưỡng thời gian va chạm nguy hiểm (TTC - giây)
+
+# Cấu hình Cảnh báo Lệch làn (LDW)
+ldw:
+  threshold: 0.55               # Ngưỡng lệch làn kích hoạt cảnh báo (mét)
+
+# Cấu hình Hệ thống Cảnh báo Âm thanh (Alert System)
+alerts:
+  voice_enabled: true
+  volume: 1.0

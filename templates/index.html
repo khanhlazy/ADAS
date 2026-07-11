@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrafficVision Autopilot - Hệ Thống ADAS Hỗ Trợ Lái Xe Thông Minh</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body class="dark-theme">
+    <!-- TOP HEADER -->
+    <header class="top-header">
+        <div class="logo">
+            <i class="fa-solid fa-shield-halved"></i> <span>TrafficVision <strong>AUTOPILOT</strong></span>
+        </div>
+        <div class="system-status">
+            <div class="status-pill active"><i class="fa-solid fa-camera animate-pulse"></i> CAM: TRỰC TUYẾN</div>
+            <div class="status-pill active"><i class="fa-solid fa-microchip"></i> YOLO: CỤC BỘ</div>
+            <div class="status-pill warning" id="gpu-pill"><i class="fa-solid fa-bolt"></i> GPU: CUDA</div>
+        </div>
+        <div class="fps-counter">
+            <i class="fa-solid fa-gauge-high"></i> <span id="fps-val">0</span> FPS
+        </div>
+    </header>
+
+    <!-- DASHBOARD LAYOUT -->
+    <main class="dashboard-layout">
+        <!-- LEFT COLUMN (MAIN PANEL) -->
+        <div class="main-column">
+            <!-- Video Feed Container -->
+            <div class="video-container" id="video-container">
+                <img id="video-feed" src="/video_feed" alt="Camera Feed">
+                <div class="autopilot-badge"><i class="fa-solid fa-circle-play"></i> HỆ THỐNG TỰ LÁI ĐANG BẬT</div>
+
+                <!-- HUD Alert Screen Overlay -->
+                <div class="hud-alert-overlay" id="hud-alert-overlay">
+                    <div class="hud-alert-box">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span id="hud-alert-text">CẢNH BÁO NGUY HIỂM</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monospace System Logs Panel -->
+            <div class="terminal-log-panel glass-panel">
+                <div class="terminal-header">
+                    <div class="header-title">
+                        <i class="fa-solid fa-terminal"></i> <span>CONSOLE LOG HỆ THỐNG & SỰ KIỆN ADAS</span>
+                    </div>
+                    <div class="terminal-status">
+                        <span class="pulse-dot"></span> <span>TELEMETRY STREAMING</span>
+                    </div>
+                </div>
+                <div class="terminal-body" id="timeline-track">
+                    <!-- Logs will be loaded here dynamically from backend and frontend events -->
+                    <div class="log-line system-line">[SYSTEM] Khởi tạo luồng hiển thị log thời gian thực...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN (SIDEBAR CONTROLS & MONITOR) -->
+        <aside class="sidebar-panel glass-panel">
+            <!-- Section 1: Telemetry Dashboard -->
+            <div class="sidebar-section telemetry-hud">
+                <h3><i class="fa-solid fa-tachometer-alt"></i> THÔNG SỐ VẬN HÀNH</h3>
+                <div class="hud-metrics">
+                    <div class="hud-metric-box speed">
+                        <span class="hud-label">TỐC ĐỘ XE</span>
+                        <span class="hud-value"><span id="speed-val">0</span> <small>km/h</small></span>
+                    </div>
+                    <div class="hud-metric-box curvature">
+                        <span class="hud-label">ĐỘ CONG LÀN</span>
+                        <span class="hud-value"><span id="curvature-val">0.0</span> <small>m</small></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: ADAS Warnings -->
+            <div class="sidebar-section adas-alerts">
+                <h3><i class="fa-solid fa-bullhorn"></i> CẢNH BÁO CHỦ ĐỘNG</h3>
+
+                <!-- FCW Card -->
+                <div class="adas-card fcw-card" id="fcw-card">
+                    <div class="card-header">
+                        <h4>KHOẢNG CÁCH XE PHÍA TRƯỚC (FCW)</h4>
+                        <span class="status-indicator" id="fcw-status">AN TOÀN</span>
+                    </div>
+                    <div class="metrics-row">
+                        <div class="metric">
+                            <span class="label">CỰ LY AN TOÀN</span>
+                            <span class="value"><span id="lead-dist">--.-</span> m</span>
+                        </div>
+                        <div class="metric">
+                            <span class="label">T.GIAN VA CHẠM (TTC)</span>
+                            <span class="value"><span id="lead-ttc-sec">--.-</span> s</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LDW Card -->
+                <div class="adas-card ldw-card" id="ldw-card">
+                    <div class="card-header">
+                        <h4>CẢNH BÁO CHỆCH LÀN (LDW)</h4>
+                        <span class="status-indicator" id="ldw-status">BÌNH THƯỜNG</span>
+                    </div>
+                    <div class="ldw-body">
+                        <div class="steering-icon" id="steering-wheel">
+                            <i class="fa-solid fa-dharmachakra"></i>
+                        </div>
+                        <div class="metric text-center">
+                            <span class="label">ĐỘ LỆCH VỆT LÀN</span>
+                            <span class="value"><span id="ldw-offset">0.00</span> m</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Object Counting -->
+            <div class="sidebar-section object-detection">
+                <h3><i class="fa-solid fa-cubes"></i> THỐNG KÊ VẬT THỂ NHẬN DIỆN</h3>
+                <div class="object-grid">
+                    <div class="object-badge-item"><i class="fa-solid fa-car text-blue-400"></i> Ô tô: <span
+                            class="badge" id="obj-car">0</span></div>
+                    <div class="object-badge-item"><i class="fa-solid fa-motorcycle text-yellow-400"></i> Xe máy: <span
+                            class="badge" id="obj-motorcycle">0</span></div>
+                    <div class="object-badge-item"><i class="fa-solid fa-truck text-orange-400"></i> Xe tải: <span
+                            class="badge" id="obj-truck">0</span></div>
+                    <div class="object-badge-item"><i class="fa-solid fa-bus text-teal-400"></i> Xe buýt: <span
+                            class="badge" id="obj-bus">0</span></div>
+                    <div class="object-badge-item"><i class="fa-solid fa-person text-pink-400"></i> Đi bộ: <span
+                            class="badge" id="obj-person">0</span></div>
+                    <div class="object-badge-item"><i class="fa-solid fa-triangle-exclamation text-purple-400"></i> Biển
+                        báo: <span class="badge" id="obj-traffic-sign">0</span></div>
+                    <div class="object-badge-item"><i class="fa-solid fa-traffic-light text-cyan-400"></i> Đèn GT: <span
+                            class="badge" id="obj-traffic-light">0</span></div>
+                </div>
+            </div>
+
+            <!-- Section 4: System Parameters Settings -->
+            <div class="sidebar-section parameters-config">
+                <h3><i class="fa-solid fa-sliders"></i> CĂN CHỈNH THÔNG SỐ ĐỘNG</h3>
+                <form id="config-form">
+                    <div class="control-group">
+                        <div class="slider-label">
+                            <span>Cự ly an toàn (FCW):</span>
+                            <span class="slider-val-bubble"><span id="safe-dist-val">12</span>m</span>
+                        </div>
+                        <input type="range" id="safe-distance-input" min="5" max="30" value="12">
+                    </div>
+                    <div class="control-group">
+                        <div class="slider-label">
+                            <span>Ngưỡng TTC cảnh báo:</span>
+                            <span class="slider-val-bubble"><span id="ttc-val">2.0</span>s</span>
+                        </div>
+                        <input type="range" id="ttc-input" min="0.5" max="5.0" step="0.1" value="2.0">
+                    </div>
+                    <div class="control-group">
+                        <div class="slider-label">
+                            <span>Âm lượng trình duyệt:</span>
+                            <span class="slider-val-bubble"><span id="volume-val">100</span>%</span>
+                        </div>
+                        <input type="range" id="volume-input" min="0" max="1" step="0.1" value="1.0">
+                    </div>
+                    <button type="submit" class="btn-save">ÁP DỤNG THAY ĐỔI</button>
+                </form>
+            </div>
+
+            <!-- Section 5: Control Operations -->
+            <div class="sidebar-section control-operations">
+                <h3><i class="fa-solid fa-gamepad"></i> VẬN HÀNH & KIỂM THỬ</h3>
+                <div class="control-grid">
+                    <button class="btn-control" id="btn-demo-saigon">
+                        <i class="fa-solid fa-city"></i> Demo Nội Đô
+                    </button>
+                    <button class="btn-control" id="btn-demo-highway">
+                        <i class="fa-solid fa-road"></i> Demo Cao Tốc
+                    </button>
+
+                    <button class="btn-control" id="btn-toggle-lane">
+                        <i class="fa-solid fa-eye-slash"></i> <span>TẮT KẺ LANE</span>
+                    </button>
+
+                    <button class="btn-control" id="btn-toggle-browser-audio">
+                        <i class="fa-solid fa-volume-xmark"></i> <span>BẬT LOA WEB</span>
+                    </button>
+
+                    <div class="upload-btn-wrapper">
+                        <label for="video-upload" class="btn-control btn-upload-label">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> TẢI VIDEO LÊN
+                        </label>
+                        <input type="file" id="video-upload" accept="video/mp4,video/avi,video/x-matroska,video/*"
+                            style="display: none;">
+                    </div>
+
+                    <button class="btn-control btn-pause-system" id="btn-pause">
+                        <i class="fa-solid fa-pause"></i> TẠM DỪNG
+                    </button>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- JS bindings -->
+    <script src="/static/js/main.js"></script>
+</body>
+
+</html>
